@@ -32,6 +32,11 @@ Compile the C++ part:
 make
 ```
 
+Add current dir to Python path:
+```
+export PYTHONPATH=$PYTHONPATH:$PWD
+```
+
 It may take a few tries to get the Python packages to work well with each other.
 In particular, the version of pybind, pytorch, gcc, and python must be compatible.
 
