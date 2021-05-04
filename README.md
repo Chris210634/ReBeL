@@ -51,6 +51,10 @@ To train the value network, run the following:
 ```
 TORCH_USE_RTLD_GLOBAL=YES python run_poker.py
 ```
+You can change hyperparameters in ```conf/c02_selfplay/poker_ap.yaml```.
+You will see the replay buffer being filled. Once a certain number of training examples is reached, the value network is trained one epoch.
+This code uses 1 GPU. Most of the time is spent generating the training examples.
+I found that training the value network one epoch is sufficient to get reasonable results.
 
 To evaluate the value network policy, run the following:
 
