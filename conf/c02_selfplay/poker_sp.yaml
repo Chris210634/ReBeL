@@ -18,7 +18,7 @@ env:
   sample_leaf: true
   subgame_params:
     use_cfr: true
-    num_iters: 32
+    num_iters: 1024
     max_depth: 4
     linear_update: true
 exploit: true
