@@ -56,6 +56,8 @@ You will see the replay buffer being filled. Once a certain number of training e
 This code uses 1 GPU. Most of the time is spent generating the training examples.
 I found that training the value network one epoch is sufficient to get reasonable results.
 
+checkpoints are stored in the ```outputs``` folder.
+
 To evaluate the value network policy, run the following:
 
 ```
