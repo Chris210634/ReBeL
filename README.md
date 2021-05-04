@@ -124,6 +124,7 @@ Player 1 loses 2 points because it folded and the bid was 2.
 
 ### Exploitability Results
 
+I tested both ReBeL and full game CFR with different number of CFR iterations. You can see that the explotability of full game CFR converges to 0 (Nash Equilibrium) like 1/T. ReBeL's explotability converges to a suboptimal strategty because of neural network approximation.
 
 ![convergence](https://user-images.githubusercontent.com/10382186/117016257-86c9c300-acc0-11eb-9a15-4b42daad0203.PNG)
 
