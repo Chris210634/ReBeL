@@ -107,3 +107,20 @@ Action Probabilities (Fold, Call, Raise): 0.947801 0.00026067 0.0519379
 Player: 1 Action: fold
 Winner is Player 0 Bet was 2
 ```
+
+In the above game, Player 0 is ReBeL and Player 1 is full game CFR.
+
+The three public dice rolled were {1 6 2}. Player 0 rolled {6 1} and Player 1 rolled {4 1}.
+
+Player 0 went first. You can see the player calculated a high probability for raising, probably becuase it had two pair (a pair of 1s and a pair of 6s).
+
+Player 0 samples from that probability distribution and chooses to raise.
+
+Player 1 then calculates its probabability distribution, which has about 95% chance of folding. Player 1 samples from this probability distribution and indeed chooses to fold.
+
+Player 1 loses 2 points because it folded and the bid was 2.
+
+
+
+
+
