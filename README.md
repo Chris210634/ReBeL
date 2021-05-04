@@ -48,6 +48,8 @@ Please see ```requirements.txt``` for the full list of python packages and versi
 
 You need 1 V100 GPU.
 
+### Training
+
 To train the value network, run the following:
 
 ```
@@ -60,6 +62,7 @@ I found that training the value network one epoch is sufficient to get reasonabl
 
 checkpoints are stored in the ```outputs``` folder.
 
+### Evaluation
 To evaluate the value network policy, edit the ```bin_path``` variable in ```eval_net.py``` to point to the value net checkpoint from the previous step. run the following:
 
 ```
@@ -75,6 +78,8 @@ TORCH_USE_RTLD_GLOBAL=YES python cfvpy/full-cfr.py
 ```
 
 This script runs Full game CFR on all 216 possible games and reports the average exploitability. You can change the number of CFR iterations by editing the code in ```full-cfr.py```.
+
+### Demo
 
 To watch the game between ReBeL and full game CFR, run the following (Keep hitting enter):
 ```
