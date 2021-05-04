@@ -138,3 +138,15 @@ You can change the number of iterations of CFR used in ReBeL by modifying this l
 
 You can change the number of iterations of CFR used in Full Game CFR by modifying this line:
 https://github.com/Chris210634/ReBeL/blob/eeb420071710c00d17ca9f86d86a16a0d1953f90/cfvpy/full-cfr.py#L20
+
+## Citation
+
+```bibtex
+@article{brown2020rebel,
+  title={Combining deep reinforcement learning and search for imperfect-information games},
+  author={Brown, Noam and Bakhtin, Anton and Lerer, Adam and Gong, Qucheng},
+  journal={Advances in Neural Information Processing Systems},
+  volume={33},
+  year={2020}
+}
+```
