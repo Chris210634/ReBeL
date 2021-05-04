@@ -60,7 +60,7 @@ I found that training the value network one epoch is sufficient to get reasonabl
 
 checkpoints are stored in the ```outputs``` folder.
 
-To evaluate the value network policy, edit the ```bin_path``` variable in ```eval_net.py``` to point to thhe value net checkpoint from the previous step. run the following:
+To evaluate the value network policy, edit the ```bin_path``` variable in ```eval_net.py``` to point to the value net checkpoint from the previous step. run the following:
 
 ```
 TORCH_USE_RTLD_GLOBAL=YES python cfvpy/eval_net.py 
@@ -81,7 +81,7 @@ To watch the game between ReBeL and full game CFR, run the following (Keep hitti
 TORCH_USE_RTLD_GLOBAL=YES python cfvpy/play_poker_dice.py
 ```
 
-This script randomly generates games. Youo can hit enter to see the computer play the next move. A sample output is included in the next section.
+This script randomly generates games. You can hit enter to see the computer play the next move. A sample output is included in the next section.
 
 ## Results
 
