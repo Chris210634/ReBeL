@@ -40,6 +40,10 @@ export PYTHONPATH=$PYTHONPATH:$PWD
 It may take a few tries to get the Python packages to work well with each other.
 In particular, the version of pybind, pytorch, gcc, and python must be compatible.
 
+I used Python 3.7.9, GCC 10.2.0, PyTorch 1.7.0.
+
+Please see ```requirements.txt``` for the full list of python packages and versions in my enviornment.
+
 ## Running the Program
 
 To train the value network, run the following:
