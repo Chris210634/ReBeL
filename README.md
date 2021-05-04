@@ -8,7 +8,11 @@ The source code for the Poker Dice game can be found in csrc/poker_dice.
 
 ## Installation and Setup
 
-I tested on the SCC.
+I tested on the SCC. Install the Python packages from the requirements.txt file.
+
+```
+module load gcc/10.2.0 cuda miniconda
+```
 
 ## Running the Program
 
