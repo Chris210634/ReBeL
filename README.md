@@ -1,4 +1,3 @@
-![convergence](https://user-images.githubusercontent.com/10382186/117016257-86c9c300-acc0-11eb-9a15-4b42daad0203.PNG)
 # EC700 Reinforcement Learning Project
 
 In this project I reproduce the ReBeL algorithm found here: https://github.com/facebookresearch/rebel
@@ -123,7 +122,9 @@ Player 1 then calculates its probabability distribution, which has about 95% cha
 
 Player 1 loses 2 points because it folded and the bid was 2.
 
+### Exploitability Results
 
 
+![convergence](https://user-images.githubusercontent.com/10382186/117016257-86c9c300-acc0-11eb-9a15-4b42daad0203.PNG)
 
 
