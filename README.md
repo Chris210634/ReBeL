@@ -58,11 +58,13 @@ I found that training the value network one epoch is sufficient to get reasonabl
 
 checkpoints are stored in the ```outputs``` folder.
 
-To evaluate the value network policy, run the following:
+To evaluate the value network policy, edit the ```c02_selfplay``` variable in ```eval_net.py``` to point to thhe value net checkpoint from the previous step. run the following:
 
 ```
 TORCH_USE_RTLD_GLOBAL=YES python cfvpy/eval_net.py 
 ```
+
+This script calculates the exploitability of the value net strategy by averaging over all possible games (total 216).
 
 To run full-game CFR, run the following:
 
@@ -70,10 +72,14 @@ To run full-game CFR, run the following:
 TORCH_USE_RTLD_GLOBAL=YES python cfvpy/full-cfr.py
 ```
 
+This script runs Full game CFR on all 216 possible games and reports the average exploitability. You can change the number of CFR iterations by editing the code in ```full-cfr.py```.
+
 To watch the game between ReBeL and full game CFR, run the following (Keep hitting enter):
 ```
 TORCH_USE_RTLD_GLOBAL=YES python cfvpy/play_poker_dice.py
 ```
+
+This script randomly generates games. Youo can hit enter to see the computer play the next move. A sample output is included in the next section.
 
 ## Results
 
