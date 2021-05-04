@@ -130,4 +130,7 @@ I tested both ReBeL and full game CFR with different number of CFR iterations. Y
 
 ![convergence](https://user-images.githubusercontent.com/10382186/117016257-86c9c300-acc0-11eb-9a15-4b42daad0203.PNG)
 
+You can change the number of iterations of CFR used in ReBeL by modifying this line: https://github.com/Chris210634/ReBeL/blob/eeb420071710c00d17ca9f86d86a16a0d1953f90/conf/c02_selfplay/poker_sp.yaml#L21
 
+You can change the number of iterations of CFR used in Full Game CFR by modifying this line:
+https://github.com/Chris210634/ReBeL/blob/eeb420071710c00d17ca9f86d86a16a0d1953f90/cfvpy/full-cfr.py#L20
