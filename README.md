@@ -1,3 +1,4 @@
+![convergence](https://user-images.githubusercontent.com/10382186/117016257-86c9c300-acc0-11eb-9a15-4b42daad0203.PNG)
 # EC700 Reinforcement Learning Project
 
 In this project I reproduce the ReBeL algorithm found here: https://github.com/facebookresearch/rebel
