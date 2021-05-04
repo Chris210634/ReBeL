@@ -27,6 +27,14 @@ conda install cmake
 git submodule update --init
 ```
 
+Compile the C++ part:
+```
+make
+```
+
+It may take a few tries to get the Python packages to work well with each other.
+In particular, the version of pybind, pytorch, gcc, and python must be compatible.
+
 ## Running the Program
 
 To train the value network, run the following:
