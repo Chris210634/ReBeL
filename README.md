@@ -90,6 +90,8 @@ This script randomly generates games. You can hit enter to see the computer play
 
 ## Results
 
+### Demo Results
+
 Example output from game between ReBeL and full game CFR:
 
 ```
