@@ -8,10 +8,23 @@ The source code for the Poker Dice game can be found in csrc/poker_dice.
 
 ## Installation and Setup
 
-I tested on the SCC. Install the Python packages from the requirements.txt file.
+I tested on the BU SCC. 
 
+First, load the appropriate modules.
 ```
 module load gcc/10.2.0 cuda miniconda
+```
+
+Then, run the following to create a conda environment and install the appropriate packages.
+```
+git clone https://github.com/Chris210634/ReBeL
+cd ReBeL
+mkdir .conda
+conda create --prefix .conda/rebel
+conda activate .conda/rebel
+pip install -r requirements.txt   # This might not work
+conda install cmake
+git submodule update --init
 ```
 
 ## Running the Program
