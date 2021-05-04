@@ -38,7 +38,7 @@ def main(cfg):
     logging.info("CWD: %s", os.getcwd())
     logging.info("cfg:\n%s", cfg.pretty())
     #resource.setrlimit(
-    #    resource.RLIMIT_CORE, (resource.RLIM_INFINITY, resource.RLIM_INFINITY)
+    #    resource.RLIMIT_CORE, (16, 16)
     #)
     logging.info("resource.RLIMIT_CORE: %s", resource.RLIMIT_CORE)
     heyhi.log_git_status()

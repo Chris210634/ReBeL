@@ -4,3 +4,10 @@ cfvpy/rela*.so
 ^exps/
 strategy*.txt
 __pycache__/
+csrc/liars_dice_backup/
+csrc/poker_dice_backup/
+outputs/
+regrets_out.txt
+regrets_out_priv.txt
+src/
+.conda/

@@ -22,11 +22,11 @@ Recursive training and evaluation.
 #include <random>
 #include <vector>
 
-#include "liars_dice.h"
+#include "poker_dice.h"
 #include "net_interface.h"
 #include "subgame_solving.h"
 
-namespace liars_dice {
+namespace poker_dice {
 
 struct RecursiveSolvingParams {
   int num_dice;
@@ -54,7 +54,8 @@ class RlRunner {
       : RlRunner(build_params(game, params), net, seed) {}
 
   void step();
-  void step_test();
+  float step_test(int pub_hand, int iterations);
+  TreeStrategy get_full_game_cfr_strategy(int pub_hand);
 
  private:
   static RecursiveSolvingParams build_params(
@@ -89,13 +90,20 @@ class RlRunner {
 // Compute strategy by recursively solving subgames. Use only the strategy at
 // root of the same for the full tree, and proceed to its children.
 TreeStrategy compute_strategy_recursive(
+    const Game& game, const SubgameSolvingParams& subgame_params, int pub_hand,
+    std::shared_ptr<IValueNet> net);
+
+
+TreeStrategy compute_strategy_recursive(
     const Game& game, const SubgameSolvingParams& subgame_params,
     std::shared_ptr<IValueNet> net);
+
+
 // Compute strategy by recursively solving subgames. Use strategy for all
 // non-leaf subgame nodes as for full game strategy and proceed with leaf nodes
 // in the subgame.
 TreeStrategy compute_strategy_recursive_to_leaf(
-    const Game& game, const SubgameSolvingParams& subgame_params,
+    const Game& game, const SubgameSolvingParams& subgame_params, int pub_hand,
     std::shared_ptr<IValueNet> net);
 // Compute strategy by recursively solving subgames in way that mimics training:
 // 1. Sample random iteration with linear weigting.

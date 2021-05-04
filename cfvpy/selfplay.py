@@ -53,7 +53,8 @@ class CFVExp:
     def __init__(self, cfg):
 
         self.cfg = cfg
-        self.device = cfg.device or "cuda"
+        #self.device = cfg.device or "cuda"
+        self.device = "cuda"
         ckpt_path = "."
         if heyhi.is_on_slurm():
             self.rank = int(os.environ["SLURM_PROCID"])
@@ -95,6 +96,7 @@ class CFVExp:
             torch.manual_seed(cfg.seed)
 
     def configure_scheduler(self, optimizer):
+        return None
         sched_cfg = self.cfg.optimizer.scheduler
         if not sched_cfg:
             return None
@@ -183,14 +185,14 @@ class CFVExp:
         # Need to preserve ownership of the ref models!
         ref_models = []
         model_lockers = []
-        assert torch.cuda.device_count() >= 2, torch.cuda.device_count()
+        assert torch.cuda.device_count() >= 1, torch.cuda.device_count()
         if self.cfg.selfplay.cpu_gen_threads:
             num_threads = self.cfg.selfplay.cpu_gen_threads
             act_devices = ["cpu"] * num_threads
             logging.info("Will generate on CPU with %d threads", num_threads)
             assert self.cfg.selfplay.models_per_gpu == 1
         else:
-            act_devices = [f"cuda:{i}" for i in range(1, torch.cuda.device_count())]
+            act_devices = [f"cuda:{i}" for i in range(0, torch.cuda.device_count())]
             if self.is_master and self.cfg.selfplay.num_master_threads is not None:
                 num_threads = self.cfg.selfplay.num_master_threads
             else:
@@ -282,15 +284,15 @@ class CFVExp:
 
         context.start()
 
-        if self.cfg.benchmark_data_gen:
+        #if self.cfg.benchmark_data_gen:
             # Benchmark generation speed and exit.
-            time.sleep(self.cfg.benchmark_data_gen)
-            context.terminate()
-            size = replay.num_add()
-            logging.info(
-                "BENCHMARK size %s speed %.2f", size, size / context.running_time
-            )
-            return
+         #   time.sleep(self.cfg.benchmark_data_gen)
+         #   context.terminate()
+          #  size = replay.num_add()
+          #  logging.info(
+          #      "BENCHMARK size %s speed %.2f", size, size / context.running_time
+          #  )
+           # return
 
         train_size = self.cfg.data.train_epoch_size or 128 * 1000
         logging.info("Train set size (forced): %s", train_size)
@@ -324,7 +326,7 @@ class CFVExp:
                     policy_replay.size(),
                     burn_in_frames,
                 )
-            time.sleep(30)
+            time.sleep(5)
 
         def compute_gen_bps():
             return (
@@ -336,6 +338,9 @@ class CFVExp:
 
         metrics = None
         num_decays = 0
+
+
+#######################################  MAIN FOR LOOP ###########################################
         for epoch in range(self.cfg.max_epochs):
             self.train_timer.start("start")
             if (
@@ -388,6 +393,9 @@ class CFVExp:
             train_iter = tqdm.tqdm(train_loader) if use_progress_bar else train_loader
             training_start = time.time()
 
+
+
+########################### WAITING FOR ENOUGH DATA TO BE GENERATED FOR TRAINING ##################################
             if self.cfg.train_gen_ratio:
                 while True:
                     if replay.num_add() * self.cfg.train_gen_ratio >= train_size * (
@@ -402,9 +410,12 @@ class CFVExp:
                         train_size,
                         epoch + 1,
                     )
-                    time.sleep(60)
+                    time.sleep(5)
             assert self.cfg.replay.use_priority is False, "Not supported"
 
+
+
+###################### Training loop #####################
             value_loss = policy_loss = 0  # For progress bar.
             for iter_id in train_iter:
                 self.train_timer.start("train-get_batch")
@@ -429,7 +440,7 @@ class CFVExp:
                     else self.get_value_params()
                 )
                 opt.zero_grad()
-                loss.backward()
+                loss.backward() #################### !!!!!! ###########################
 
                 if self.cfg.grad_clip:
                     g_norm = clip_grad_norm_(params, self.cfg.grad_clip)
@@ -476,9 +487,15 @@ class CFVExp:
                     # skipped. The goal is to measure generation speed withot
                     # sample() calls..
                     break
+######################### End training loop #############################
+
+
+
+
+
             if self.cfg.fake_training:
                 # Fake training epoch takes a minute.
-                time.sleep(60)
+                time.sleep(5)
 
             if len(train_loader) > 0:
                 metrics["bps/train"] = len(train_loader) / (
@@ -506,10 +523,13 @@ class CFVExp:
                     metrics["bps/gen_policy"] * batch_size
                 )
 
+######################## COPYING NETWORK #########################
             if (epoch + 1) % self.cfg.selfplay.network_sync_epochs == 0 or epoch < 15:
                 logging.info("Copying current network to the eval network")
                 for model_locker in datagen["model_lockers"]:
                     model_locker.update_model(self.get_model())
+
+
             if self.cfg.purging_epochs and (epoch + 1) in self.cfg.purging_epochs:
                 new_size = max(
                     burn_in_frames,
@@ -520,7 +540,7 @@ class CFVExp:
                 )
                 replay.pop_until(new_size)
 
-            if self.is_master and epoch % 10 == 0:
+            if self.is_master: #and epoch % 10 == 0:
                 with torch.no_grad():
                     for i, (name, val_loader) in enumerate(val_datasets):
                         self.train_timer.start("valid-acc-extra")
@@ -552,7 +572,7 @@ class CFVExp:
                 torch.jit.save(torch.jit.script(self.get_model()), str(bin_path))
 
                 self.train_timer.start("valid-exploit")
-                if self.cfg.exploit and epoch % 20 == 0:
+                if self.cfg.exploit: #and epoch % 20 == 0:
                     bin_path = pathlib.Path("tmp.torchscript")
                     torch.jit.save(torch.jit.script(self.get_model()), str(bin_path))
                     (
@@ -563,7 +583,7 @@ class CFVExp:
                         create_mdp_config(self.cfg.env), str(bin_path)
                     )
                     logging.info(
-                        "Exploitability to leaf (epoch=%d): %.2f", epoch, exploitability
+                        "Exploitability to leaf (epoch=%d): %f", epoch, exploitability
                     )
                     metrics["exploitability_last"] = exploitability
                     metrics["eval_mse/net_reach"] = mse_net_traverse

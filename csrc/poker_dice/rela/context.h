@@ -22,6 +22,40 @@
 #include "rela/thread_loop.h"
 
 namespace rela {
+/*
+struct RecursiveSolvingParams {
+  int num_dice;
+  int num_faces;
+  // Probability to explore random action for BR player.
+  float random_action_prob = 1.0;
+  bool sample_leaf = false;
+  SubgameSolvingParams subgame_params;
+};
+
+struct SubgameSolvingParams {
+  // Common FP-CFR params.
+  int num_iters = 10;
+  int max_depth = 2;
+  bool linear_update = false;
+  bool use_cfr = false;  // Whetehr to use FP or CFR.
+
+  // FP only params.
+  bool optimistic = false;
+
+  // CFR-only.
+  bool dcfr = false;
+  double dcfr_alpha = 0;
+  double dcfr_beta = 0;
+  double dcfr_gamma = 0;
+};*/
+
+class Test {
+  Test(){}
+  ~Test() = default;
+
+
+
+};
 
 class Context {
  public:
@@ -64,20 +98,6 @@ class Context {
     for (auto& v : loops_) {
       v->resume();
     }
-  }
-
-  void run()
-  {
-    liars_dice::RecursiveSolvingParams cfg; cfg.num_dice = 1; cfg.num_faces = 6;
-    cfg.subgame_params.max_depth = 100;
-    cfg.subgame_params.use_cfr = true;
-    cfg.subgame_params.linear_update = true;
-
-    std::cout << "Hello World~" << std::endl;
-    auto runner = std::make_unique<liars_dice::RlRunner>(cfg, nullptr, 3253);
-    std::cout << "Hello World~" << std::endl;
-
-    runner->step_test();
   }
 
   void terminate() {

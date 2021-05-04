@@ -56,6 +56,8 @@ def build_mlp(
 def input_size(num_faces, num_dice):
     return 1 + 1 + (2 * num_faces * num_dice + 1) + 2 * output_size(num_faces, num_dice)
 
+def input_size_poker(num_faces, num_dice):
+    return 1 + 1 + 9 + 216 + 2 * output_size(num_faces, num_dice)
 
 def output_size(num_faces, num_dice):
     return num_faces ** num_dice
@@ -93,6 +95,38 @@ class Net2(nn.Module):
     def forward(self, packed_input: torch.Tensor):
         return self.output(self.body(packed_input))
 
+
+class Net2Poker(nn.Module):
+    def __init__(
+        self,
+        *,
+        num_faces,
+        num_dice,
+        n_hidden=256,
+        use_layer_norm=False,
+        dropout=0,
+        n_layers=3,
+    ):
+        super().__init__()
+
+        n_in = input_size_poker(num_faces, num_dice)
+        self.body = build_mlp(
+            n_in=n_in,
+            n_hidden=n_hidden,
+            n_layers=n_layers,
+            use_layer_norm=use_layer_norm,
+            dropout=dropout,
+        )
+        self.output = nn.Linear(
+            n_hidden if n_layers > 0 else n_in, output_size(num_faces, num_dice)
+        )
+        # Make initial predictions closer to 0.
+        with torch.no_grad():
+            self.output.weight.data *= 0.01
+            self.output.bias *= 0.01
+
+    def forward(self, packed_input: torch.Tensor):
+        return self.output(self.body(packed_input))
 
 class GELU(nn.Module):
     def forward(self, x):

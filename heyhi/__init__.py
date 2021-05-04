@@ -25,8 +25,8 @@ import shutil
 import subprocess
 import time
 
-import hydra
-import submitit
+from hydra._internal.hydra import Hydra
+#import submitit
 import torch
 
 
@@ -433,7 +433,7 @@ def run_with_config(
         abs_base_dir,
     )
     hydra_config_path = hydra_config_path[len(abs_base_dir) + 1 :]
-    hydra_obj = hydra.Hydra(
+    hydra_obj = Hydra.create_main_hydra_file_or_module(
         calling_file="run.py",
         calling_module=None,
         config_path=hydra_config_path,

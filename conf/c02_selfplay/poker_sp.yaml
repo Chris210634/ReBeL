@@ -12,13 +12,13 @@ half_inference: false
 purging_epochs: 0
 
 env:
-  num_dice: 1
-  num_faces: 4
+  num_dice: 2
+  num_faces: 6
   random_action_prob: 0.25
   sample_leaf: true
   subgame_params:
     use_cfr: true
-    num_iters: 1024
+    num_iters: 32
     max_depth: 4
     linear_update: true
 exploit: true
@@ -36,9 +36,9 @@ loss: huber
 min_buffer_to_send: 2500
 max_epochs: 100
 model:
-  name: Net2
+  name: Net2Poker
   kwargs:
-    n_hidden: 128
+    n_hidden: 256
     n_layers: 2
     use_layer_norm: false
 create_validation_set_every: 100

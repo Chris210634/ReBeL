@@ -185,6 +185,7 @@ PYBIND11_MODULE(rela, m) {
       .def("push_env_thread", &rela::Context::pushThreadLoop,
            py::keep_alive<1, 2>())
       .def("start", &rela::Context::start)
+      .def("run", &rela::Context::run)
       .def("pause", &rela::Context::pause)
       .def("resume", &rela::Context::resume)
       .def("terminate", &rela::Context::terminate)

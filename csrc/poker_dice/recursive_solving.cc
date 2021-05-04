@@ -25,12 +25,13 @@
 #include <random>
 #include <vector>
 
-#include "liars_dice.h"
+#include "poker_dice.h"
 #include "net_interface.h"
+#include "subgame_solving.h"
 #include "subgame_solving.h"
 #include "util.h"
 
-namespace liars_dice {
+namespace poker_dice {
 
 namespace {
 
@@ -46,7 +47,7 @@ void normalize_beliefs_inplace(std::vector<double>& beliefs) {
 // Compute strategies for this node and all children.
 void compute_strategy_recursive(const Game& game, const Tree& tree, int node_id,
                                 const Pair<std::vector<double>>& beliefs,
-                                const SubgameSolverBuilder& solver_builder,
+                                const SubgameSolverBuilder& solver_builder, int pub_hand,
                                 TreeStrategy* strategy) {
   auto& node = tree[node_id];
   auto& state = node.state;
@@ -69,14 +70,14 @@ void compute_strategy_recursive(const Game& game, const Tree& tree, int node_id,
     }
     normalize_beliefs_inplace(new_beliefs[state.player_id]);
     compute_strategy_recursive(game, tree, child_node_id, new_beliefs,
-                               solver_builder, strategy);
+                               solver_builder, pub_hand, strategy);
   }
 }
 
 void compute_strategy_recursive_to_leaf(
     const Game& game, const Tree& tree, int node_id,
     const Pair<std::vector<double>>& beliefs,
-    const SubgameSolverBuilder& solver_builder, bool use_samplig_strategy,
+    const SubgameSolverBuilder& solver_builder, int pub_hand, bool use_samplig_strategy,
     TreeStrategy* strategy) {
   auto& node = tree[node_id];
   auto& state = node.state;
@@ -127,30 +128,30 @@ void compute_strategy_recursive_to_leaf(
       normalize_beliefs_inplace(node_reaches[0]);
       normalize_beliefs_inplace(node_reaches[1]);
       compute_strategy_recursive_to_leaf(game, tree, full_node_id, node_reaches,
-                                         solver_builder, use_samplig_strategy,
+                                         solver_builder, pub_hand, use_samplig_strategy,
                                          strategy);
     }
   }
 }
 
 TreeStrategy compute_strategy_with_solver(
-    const Game& game, const SubgameSolverBuilder& solver_builder) {
-  const Tree tree = unroll_tree(game);
+    const Game& game, const SubgameSolverBuilder& solver_builder, int pub_hand) {
+  const Tree tree = unroll_tree(game, pub_hand);
   TreeStrategy strategy(tree.size());
   const auto beliefs = get_initial_beliefs(game);
-  compute_strategy_recursive(game, tree, /*node_id=*/0, beliefs, solver_builder,
+  compute_strategy_recursive(game, tree, /*node_id=*/0, beliefs, solver_builder, pub_hand,
                              &strategy);
   return strategy;
 }
 
 TreeStrategy compute_strategy_with_solver_to_leaf(
-    const Game& game, const SubgameSolverBuilder& solver_builder,
+    const Game& game, const SubgameSolverBuilder& solver_builder, int pub_hand,
     bool use_samplig_strategy = false) {
-  const Tree tree = unroll_tree(game);
+  const Tree tree = unroll_tree(game, pub_hand);
   TreeStrategy strategy(tree.size());
   const auto beliefs = get_initial_beliefs(game);
   compute_strategy_recursive_to_leaf(game, tree, /*node_id=*/0, beliefs,
-                                     solver_builder, use_samplig_strategy,
+                                     solver_builder, pub_hand, use_samplig_strategy,
                                      &strategy);
   return strategy;
 }
@@ -158,7 +159,11 @@ TreeStrategy compute_strategy_with_solver_to_leaf(
 }  // namespace
 
 void RlRunner::step() {
-  state_ = game_.get_initial_state();
+
+  int rand_pub_hand = rand() % 216;
+  //int rand_pub_hand = 152;
+
+  state_ = game_.get_initial_state(rand_pub_hand);
   beliefs_[0].assign(game_.num_hands(), 1.0 / game_.num_hands());
   beliefs_[1].assign(game_.num_hands(), 1.0 / game_.num_hands());
   // std::cout << "state: " << game_.state_to_string(state_) << "\n";
@@ -180,6 +185,69 @@ void RlRunner::step() {
     solver->update_value_network();
   }
 }
+
+//**************************************
+//**************************************
+//**************************************
+//**************************************
+//**************************************
+//**************************************
+float RlRunner::step_test(int pub_hand, int iterations) {
+  poker_dice::Game game(2, 6);
+
+  poker_dice::PartialPublicState state = game.get_initial_state(pub_hand);
+  beliefs_[0].assign(game.num_hands(), 1.0 / game.num_hands());
+  beliefs_[1].assign(game.num_hands(), 1.0 / game.num_hands());
+
+  int player = 0;
+  int iteration = 0;
+
+  auto solver = poker_dice::build_solver(game, state, beliefs_, subgame_params_, net_);
+
+  //auto solver = std::make_unique<CFR>(game, state, net_, beliefs_, subgame_params_);
+
+  while (iteration < iterations) {
+    solver->step(player);
+    player = (player == 0)?1:0;
+    iteration++;
+  }
+  double d = poker_dice::compute_exploitability(game, solver->get_strategy(), pub_hand);
+  std::cout << "Hand: " << pub_hand << "\tExploitability: " << d << std::endl;
+  //solver->print_strategy("strategy_out.txt");
+  //solver->print_regrets("regrets_out.txt");
+  
+  //std::cout << "done!" << std::endl;
+  return (float)d;
+}
+
+TreeStrategy RlRunner::get_full_game_cfr_strategy(int pub_hand)
+{
+  poker_dice::Game game(2, 6);
+
+  poker_dice::PartialPublicState state = game.get_initial_state(pub_hand);
+  beliefs_[0].assign(game.num_hands(), 1.0 / game.num_hands());
+  beliefs_[1].assign(game.num_hands(), 1.0 / game.num_hands());
+
+  int player = 0;
+  int iteration = 0;
+
+  auto solver = poker_dice::build_solver(game, state, beliefs_, subgame_params_, net_);
+
+  //auto solver = std::make_unique<CFR>(game, state, net_, beliefs_, subgame_params_);
+
+  while (iteration < 1000) {
+    solver->step(player);
+    player = (player == 0)?1:0;
+    iteration++;
+  }
+  return solver->get_strategy();
+}
+//**************************************
+//**************************************
+//**************************************
+//**************************************
+//**************************************
+//**************************************
 
 void RlRunner::sample_state(const ISubgameSolver* solver) {
   if (sample_leaf_) {
@@ -274,6 +342,20 @@ void RlRunner::sample_state_single(const ISubgameSolver* solver) {
   state_ = game_.act(state_, action);
 }
 
+
+TreeStrategy compute_strategy_recursive(
+    const Game& game, const SubgameSolvingParams& subgame_params, int pub_hand,
+    std::shared_ptr<IValueNet> net) {
+  SubgameSolverBuilder solver_builder =
+      [net, subgame_params](const Game& game, int /*node_id*/,
+                            const PartialPublicState& state,
+                            const Pair<std::vector<double>>& beliefs) {
+        return build_solver(game, state, beliefs, subgame_params, net);
+      };
+  return compute_strategy_with_solver(game, solver_builder, pub_hand);
+}
+
+
 TreeStrategy compute_strategy_recursive(
     const Game& game, const SubgameSolvingParams& subgame_params,
     std::shared_ptr<IValueNet> net) {
@@ -283,11 +365,14 @@ TreeStrategy compute_strategy_recursive(
                             const Pair<std::vector<double>>& beliefs) {
         return build_solver(game, state, beliefs, subgame_params, net);
       };
-  return compute_strategy_with_solver(game, solver_builder);
+
+  std::cerr << "DANGEROUS TODO!!!\n";
+
+  return compute_strategy_with_solver(game, solver_builder, 152);
 }
 
 TreeStrategy compute_strategy_recursive_to_leaf(
-    const Game& game, const SubgameSolvingParams& subgame_params,
+    const Game& game, const SubgameSolvingParams& subgame_params, int pub_hand,
     std::shared_ptr<IValueNet> net) {
   SubgameSolverBuilder solver_builder =
       [net, subgame_params](const Game& game, int /*node_id*/,
@@ -295,7 +380,7 @@ TreeStrategy compute_strategy_recursive_to_leaf(
                             const Pair<std::vector<double>>& beliefs) {
         return build_solver(game, state, beliefs, subgame_params, net);
       };
-  return compute_strategy_with_solver_to_leaf(game, solver_builder);
+  return compute_strategy_with_solver_to_leaf(game, solver_builder, pub_hand);
 }
 
 TreeStrategy compute_sampled_strategy_recursive_to_leaf(
@@ -325,31 +410,5 @@ TreeStrategy compute_sampled_strategy_recursive_to_leaf(
   return compute_strategy_with_solver_to_leaf(game, solver_builder,
                                               /*use_samplig_strategy=*/true);
 }
-void RlRunner::step_test() {
-  Game game(1, 6);
 
-  PartialPublicState state = game.get_initial_state();
-  beliefs_[0].assign(game.num_hands(), 1.0 / game.num_hands());
-  beliefs_[1].assign(game.num_hands(), 1.0 / game.num_hands());
-
-  int player = 0;
-  int iteration = 0;
-
-  auto solver = build_solver(game, state, beliefs_, subgame_params_, net_);
-
-
-  while (iteration < 10000) {
-    solver->step(player);
-    player = (player == 0)?1:0;
-    iteration++;
-    if (iteration % 1000 == 0)
-    {
-      double d = compute_exploitability(game, solver->get_strategy());
-      std::cout << "Iteration: " << iteration << "\tExploitability: " << d << std::endl;
-    }
-  }
-
-  std::cout << "done!" << std::endl;
-
-}
-}  // namespace liars_dice
+}  // namespace poker_dice
