@@ -4,6 +4,8 @@ In this project I reproduce the ReBeL algorithm found here: https://github.com/f
 
 I use the ReBeL algorithm on a game called Poker Dice (A very simplified version of Poker).
 
+The source code for the Poker Dice game can be found in csrc/poker_dice.
+
 ## Installation and Setup
 
 I tested on the SCC.
