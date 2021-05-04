@@ -90,6 +90,10 @@ This script randomly generates games. You can hit enter to see the computer play
 
 ## Results
 
+Poker Dice visualization:
+
+![poker-dice](https://user-images.githubusercontent.com/10382186/117018205-49fecb80-acc2-11eb-8143-eff2ba5bc103.PNG)
+
 ### Demo Results
 
 Example output from game between ReBeL and full game CFR:
