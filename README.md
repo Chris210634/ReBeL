@@ -60,7 +60,7 @@ I found that training the value network one epoch is sufficient to get reasonabl
 
 checkpoints are stored in the ```outputs``` folder.
 
-To evaluate the value network policy, edit the ```c02_selfplay``` variable in ```eval_net.py``` to point to thhe value net checkpoint from the previous step. run the following:
+To evaluate the value network policy, edit the ```bin_path``` variable in ```eval_net.py``` to point to thhe value net checkpoint from the previous step. run the following:
 
 ```
 TORCH_USE_RTLD_GLOBAL=YES python cfvpy/eval_net.py 
